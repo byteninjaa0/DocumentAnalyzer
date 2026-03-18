@@ -1,130 +1,328 @@
-# AI Knowledge Assistant
+---
 
-A full end-to-end **Generative AI** system for your portfolio. It summarizes documents, answers questions about them, maintains conversation history, and performs sentiment analysis—using **only free local models** (HuggingFace). No OpenAI or other paid APIs.
+# 📘 Software Requirements Specification (SRS)
+
+## Project Name: ABTalks – 60 Days Coding Challenge Platform
+
+## Version: 2.0
 
 ---
 
-## Project Overview
+[Design](https://www.notion.so/Design-31d4fbff4e37801d98eee435e4e97d47?pvs=21)
 
-The AI Knowledge Assistant lets you:
+# 1. Introduction
 
-1. **Paste a document** and store it in the session.
-2. **Generate a summary** using a local HuggingFace model (e.g. T5-small) via LangChain.
-3. **Ask questions** about the document with a prompt-based LLM chain.
-4. **Analyze sentiment** of text using a TF-IDF + Logistic Regression classifier (trained locally).
-5. **Keep conversation memory** so the chatbot remembers prior interactions in the session.
+## 1.1 Purpose
 
-All processing runs **locally** (CPU or GPU). No data is sent to external APIs.
+This document defines the requirements for the ABTalks platform a structured 60-Day Coding Challenge designed to enhance coding skills and prepare learners according to real industry standards.
 
----
+The platform provides a guided roadmap covering:
 
-## System Architecture
+- Software Engineering
+- Machine Learning
+- Artificial Intelligence
 
-```
-User → Prompt → LangChain Chain → LLM (HuggingFace) → Output
-```
-
-- **Prompt engineering**: Templates for summarization and question-answering live in `src/prompts.py`.
-- **LangChain workflow**: Implemented as **RunnableSequence** (LCEL): `PromptTemplate | LLM | StrOutputParser`.
-- **LLM**: Local HuggingFace pipeline (e.g. `google-t5/t5-small`) for text-to-text generation.
-- **Sentiment**: Separate pipeline: text → preprocessing → TF-IDF → Logistic Regression (with GridSearchCV) → label + confidence.
-- **Memory**: Conversation buffer stores (user, assistant) turns for the session.
+The goal is to transform learners into industry-ready developers within 60 days through daily structured challenges.
 
 ---
 
-## Technologies Used
+# 2. Product Vision
 
-| Area | Technology |
-|------|------------|
-| Language | Python |
-| Orchestration | LangChain (chains, prompts, LCEL) |
-| LLM | HuggingFace Transformers (T5-small, local) |
-| ML / NLP | scikit-learn (TF-IDF, Logistic Regression, GridSearchCV) |
-| Data | NumPy, Pandas |
-| Runtime | PyTorch (CPU or CUDA) |
+ABTalks is not random practice.
 
----
+It is:
 
-## Project Structure
+✔ Structured
 
-```
-genai-document-assistant/
-│
-├── data/                 # Optional: CSV for sentiment training (text, label)
-├── models/               # Saved sentiment model (TF-IDF + classifier)
-│
-├── src/
-│   ├── preprocessing.py      # Text cleaning, tokenization, stopword removal
-│   ├── sentiment_model.py    # TF-IDF, Logistic Regression, metrics, GridSearchCV
-│   ├── summarization_chain.py # LangChain + HuggingFace document summarization
-│   ├── qa_chain.py           # Prompt-based question-answering chain
-│   ├── chatbot_memory.py     # Conversation buffer memory
-│   └── prompts.py            # Prompt templates (summarization, QA)
-│
-├── app.py                # CLI chatbot entry point
-├── requirements.txt
-└── README.md
-```
+✔ Time-bound (60 Days)
+
+✔ Industry-aligned
+
+✔ Progress-tracked
+
+✔ Discipline-driven
+
+Each day unlocks a new challenge that builds on previous knowledge.
+
+Think of it as a bootcamp but self-paced and measurable.
 
 ---
 
-## How to Run
+# 3. Core Concept: The 60-Day Challenge
 
-### 1. Create a virtual environment (recommended)
+## 3.1 Structure
 
-```bash
-cd genai-document-assistant
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-# source venv/bin/activate
-```
+- Total Duration: 60 Days
+- 1 Challenge per day
+- Increasing difficulty progression
+- Covers real-world problem solving
 
-### 2. Install dependencies
+### Phase Breakdown (Example Structure)
 
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Start the CLI chatbot
-
-```bash
-python app.py
-```
-
-### 4. Use the assistant
-
-- **`document`** – Paste your text (then press Enter; if multi-line, type `END` on a new line and press Enter). Or load from file: **`document path/to/file.txt`**.
-- **`summary`** – Summarize the current document.
-- **`ask <question>`** – Ask a question about the document.
-- **`sentiment`** or **`sentiment <sentence>`** – Sentiment of the document or the given sentence.
-- **`history`** – Show recent conversation.
-- **`clear`** – Clear document and conversation.
-- **`quit`** – Exit.
-
-**Example flow**
-
-1. Type `document`, then paste a short article or paragraph, then type `END`.
-2. Type `summary` to get a summary.
-3. Type `ask What is the main point?` to ask about the document.
-4. Type `sentiment` to get sentiment of the document (or `sentiment I love this` for a single sentence).
-5. Type `history` to see the conversation so far.
+| Phase | Days | Focus |
+| --- | --- | --- |
+| Phase 1 | Day 1–20 | Foundations & Core Concepts |
+| Phase 2 | Day 21–40 | Applied Problem Solving |
+| Phase 3 | Day 41–60 | Industry-Level Challenges |
 
 ---
 
-## Sentiment model (optional custom data)
+# 4. System Architecture Overview
 
-By default, a small built-in dataset is used to train the sentiment model on first run. To use your own data:
+The platform consists of:
 
-1. Add a CSV in `data/` with columns **`text`** and **`label`** (0 = negative, 1 = positive).
-2. In `app.py` or when calling `train_sentiment_model()`, pass `data_path="data/your_file.csv"`.
-
-The pipeline uses **TF-IDF** + **Logistic Regression** with **GridSearchCV** and reports **accuracy**, **precision**, **recall**, **F1**, and **confusion matrix**.
+- Frontend (Web UI)
+- Backend (API + Logic)
+- Database (User & Problem Data)
 
 ---
 
-## License
+# 5. Website Structure
 
-MIT. Use and adapt for your portfolio and learning.
-END
+## 5.1 Sidebar Navigation (Persistent)
+
+The sidebar must include:
+
+- Dashboard
+- 60-Day Challenge
+- Problems
+- Profile
+- Logout
+
+---
+
+# 6. Feature Requirements
+
+---
+
+# 6.1 Home Page
+
+### Objective:
+
+Communicate the mission clearly.
+
+### Content:
+
+Headline:
+
+“Master Industry-Level Skills in 60 Days”
+
+Subtext:
+
+A structured coding challenge to prepare you for real-world software, ML, and AI roles.
+
+CTA Buttons:
+
+- Start 60-Day Challenge
+- Explore Problems
+
+Sections:
+
+- What You Will Learn
+- Why 60 Days?
+- How It Works
+- Domains Covered
+
+---
+
+# 6.2 Dashboard
+
+### Description:
+
+User’s progress control center.
+
+### Must Display:
+
+- Current Day (e.g., Day 17 / 60)
+- Problems Solved
+- Current Streak
+- Longest Streak
+- Completion Percentage
+- Recent Activity
+- Domain Progress Breakdown
+
+Optional:
+
+- Progress graph
+- Weekly performance analytics
+
+---
+
+# 6.3 60-Day Challenge Page
+
+### Description:
+
+Core feature of the platform.
+
+### Requirements:
+
+- Only 1 challenge unlocked per day
+- Users cannot skip ahead (optional configurable rule)
+- If a day is missed → streak resets
+- Challenge becomes locked after 24 hours (optional rule)
+
+### Display:
+
+- Day Number
+- Domain Category
+- Difficulty
+- Description
+- Industry Relevance Note
+- Solve Button
+
+---
+
+# 6.4 Problems Section
+
+Separate from the structured 60-day track.
+
+### Filters:
+
+- Difficulty:
+    - Easy
+    - Medium
+    - Hard
+- Category:
+    - Software Engineering
+    - Machine Learning
+    - Artificial Intelligence
+
+### Each Problem Includes:
+
+- Problem Description
+- Input/Output Format
+- Constraints
+- Sample Test Cases
+- Code Submission Area
+- Result Status
+
+---
+
+# 6.5 Profile Page
+
+Displays:
+
+- Name
+- Email
+- Join Date
+- Total Problems Solved
+- 60-Day Completion Status
+- Streak
+- Achievements
+- Badges
+
+Optional:
+
+- Share progress feature
+- Download completion certificate (after 60 days)
+
+---
+
+# 7. Functional Requirements
+
+| ID | Requirement |
+| --- | --- |
+| FR1 | User registration & login |
+| FR2 | Track 60-day progression |
+| FR3 | Daily challenge auto-unlock |
+| FR4 | Streak tracking system |
+| FR5 | Save all submissions |
+| FR6 | Category & difficulty filtering |
+| FR7 | Dashboard real-time updates |
+| FR8 | Completion certificate generation |
+| FR9 | Lock/unlock daily progression logic |
+
+---
+
+# 8. Non-Functional Requirements
+
+Performance:
+
+- Page load < 2 seconds
+- Fast submission validation
+
+Security:
+
+- Encrypted passwords
+- Protected API routes
+
+Scalability:
+
+- Support 10,000+ concurrent users
+
+Responsiveness:
+
+- Fully mobile compatible
+
+---
+
+# 9. Database Structure
+
+### Users
+
+- id
+- name
+- email
+- password
+- joined_date
+- current_day
+- current_streak
+- longest_streak
+
+### Challenges
+
+- id
+- day_number
+- category
+- difficulty
+- description
+- industry_note
+
+### Submissions
+
+- id
+- user_id
+- challenge_id
+- submission_data
+- result
+- timestamp
+
+---
+
+# 10. Success Criteria
+
+Platform is complete when:
+
+- Users can complete a full 60-day cycle
+- Streak logic works correctly
+- Dashboard reflects real-time progress
+- Challenges unlock daily
+- Users feel guided and structured
+
+---
+
+# 🔥 Final Positioning Statement
+
+ABTalks is a 60-day structured coding transformation program that:
+
+- Builds consistency
+- Enhances problem-solving
+- Simulates industry-level expectations
+- Tracks measurable progress
+
+Not just practice.
+
+Preparation.
+
+---
+
+If you want, next we can:
+
+- Design the exact 60-day roadmap content
+- Build feature prioritization (MVP vs Full Product)
+- Create monetization model
+- Or architect backend APIs like a real SaaS
+
+You’re not building a website.
+
+You’re building discipline as a product. 🚀

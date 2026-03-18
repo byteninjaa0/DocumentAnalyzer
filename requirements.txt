@@ -1,10 +1,11 @@
 # AI Knowledge Assistant - Dependencies
 # Use only free local models (HuggingFace). No OpenAI paid APIs.
 
-# LangChain
+# LangChain & LangGraph
 langchain>=0.3.0
 langchain-community>=0.3.0
 langchain-core>=0.3.0
+langgraph>=0.2.0
 
 # HuggingFace & PyTorch
 transformers>=4.36.0

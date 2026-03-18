@@ -20,15 +20,29 @@ All processing runs **locally** (CPU or GPU). No data is sent to external APIs.
 
 ## System Architecture
 
+### LangGraph (recommended: `main.py`)
+
+The application is refactored to a **stateful LangGraph** workflow:
+
+```
+START → router_node → [qa_node | summarize_node | sentiment_node | history_node] → memory_node → END
+```
+
+- **State**: Central `GraphState` (`src/state.py`) with `user_input`, `task`, `context`, `response`, and `chat_history` (list with append reducer).
+- **Router**: Analyzes `user_input` and sets `task`; `add_conditional_edges` routes to the correct task node.
+- **Nodes**: Each major function is a node in `src/nodes/` (router, qa, summarize, sentiment, history, memory). QA and summarization reuse the existing HuggingFace chains; sentiment reuses TF-IDF + Logistic Regression.
+- **Memory**: Stored inside `GraphState.chat_history`; `memory_node` appends each turn after a response. No separate `ConversationBufferMemory`.
+- **Entry point**: `python main.py` builds the graph with dependency injection and invokes it per user input.
+
+### Legacy chains (still used inside nodes)
+
 ```
 User → Prompt → LangChain Chain → LLM (HuggingFace) → Output
 ```
 
-- **Prompt engineering**: Templates for summarization and question-answering live in `src/prompts.py`.
-- **LangChain workflow**: Implemented as **RunnableSequence** (LCEL): `PromptTemplate | LLM | StrOutputParser`.
-- **LLM**: Local HuggingFace pipeline (e.g. `google-t5/t5-small`) for text-to-text generation.
-- **Sentiment**: Separate pipeline: text → preprocessing → TF-IDF → Logistic Regression (with GridSearchCV) → label + confidence.
-- **Memory**: Conversation buffer stores (user, assistant) turns for the session.
+- **Prompt engineering**: Templates in `src/prompts.py`.
+- **Chains**: `src/qa_chain.py` and `src/summarization_chain.py` are used by the QA and summarization nodes.
+- **LLM**: Local HuggingFace (e.g. `google-t5/t5-small`). **Sentiment**: TF-IDF + Logistic Regression.
 
 ---
 
@@ -37,7 +51,7 @@ User → Prompt → LangChain Chain → LLM (HuggingFace) → Output
 | Area | Technology |
 |------|------------|
 | Language | Python |
-| Orchestration | LangChain (chains, prompts, LCEL) |
+| Orchestration | LangGraph (state graph, nodes, conditional edges) + LangChain (chains inside nodes) |
 | LLM | HuggingFace Transformers (T5-small, local) |
 | ML / NLP | scikit-learn (TF-IDF, Logistic Regression, GridSearchCV) |
 | Data | NumPy, Pandas |
@@ -54,14 +68,25 @@ genai-document-assistant/
 ├── models/               # Saved sentiment model (TF-IDF + classifier)
 │
 ├── src/
-│   ├── preprocessing.py      # Text cleaning, tokenization, stopword removal
-│   ├── sentiment_model.py    # TF-IDF, Logistic Regression, metrics, GridSearchCV
-│   ├── summarization_chain.py # LangChain + HuggingFace document summarization
-│   ├── qa_chain.py           # Prompt-based question-answering chain
-│   ├── chatbot_memory.py     # Conversation buffer memory
-│   └── prompts.py            # Prompt templates (summarization, QA)
+│   ├── state.py              # GraphState (TypedDict) for LangGraph
+│   ├── graph.py              # LangGraph StateGraph, conditional edges, build_graph()
+│   ├── nodes/                # LangGraph nodes
+│   │   ├── router.py         # Routes by user_input → task
+│   │   ├── qa_node.py        # Question answering over context
+│   │   ├── summarize_node.py # Document summarization
+│   │   ├── sentiment_node.py # Sentiment analysis (TF-IDF + LR)
+│   │   ├── history_node.py   # Format chat history
+│   │   └── memory_node.py    # Append turn to chat_history
+│   ├── preprocessing.py     # Text cleaning, tokenization
+│   ├── sentiment_model.py   # TF-IDF, Logistic Regression, metrics
+│   ├── summarization_chain.py # LangChain + HuggingFace summarization
+│   ├── qa_chain.py          # Prompt-based QA chain
+│   ├── hf_t5_pipeline.py    # T5 pipeline for LangChain
+│   ├── prompts.py           # Prompt templates
+│   └── chatbot_memory.py    # (Legacy) conversation buffer; memory now in GraphState
 │
-├── app.py                # CLI chatbot entry point
+├── main.py               # CLI entry point (LangGraph)
+├── app.py                # Legacy CLI (direct chains + ConversationBufferMemory)
 ├── requirements.txt
 └── README.md
 ```
@@ -89,6 +114,12 @@ pip install -r requirements.txt
 
 ### 3. Start the CLI chatbot
 
+**LangGraph (recommended):**
+```bash
+python main.py
+```
+
+**Legacy (chains only):**
 ```bash
 python app.py
 ```

@@ -10,20 +10,16 @@ MAX_CONTEXT_LENGTH = 1024
 
 
 def _get_llm(model_id: str = "google-t5/t5-small", max_new_tokens: int = 100):
-    """Build LangChain LLM from HuggingFace text2text pipeline."""
+    """Build LangChain LLM from T5 (seq2seq) via compatibility helper (transformers 5.x removed text2text-generation)."""
     try:
-        from transformers import pipeline
         from langchain_community.llms import HuggingFacePipeline
+        from .hf_t5_pipeline import get_t5_pipeline
     except ImportError:
         raise ImportError(
             "Install: pip install langchain-community transformers torch"
         )
 
-    pipe = pipeline(
-        "text2text-generation",
-        model=model_id,
-        max_new_tokens=max_new_tokens,
-    )
+    pipe = get_t5_pipeline(model_id=model_id, max_new_tokens=max_new_tokens)
     return HuggingFacePipeline(pipeline=pipe)
 
 

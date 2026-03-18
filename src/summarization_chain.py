@@ -12,22 +12,22 @@ MAX_INPUT_LENGTH = 512
 
 def _get_llm(model_id: str = "google-t5/t5-small", max_new_tokens: int = 150):
     """
-    Build a LangChain-compatible LLM from a local HuggingFace pipeline.
-    Uses text2text-generation (T5) for summarization.
+    Build a LangChain-compatible LLM from T5 (seq2seq) for summarization.
+    Uses hf_t5_pipeline helper (transformers 5.x removed text2text-generation).
     """
     try:
-        from transformers import pipeline
         from langchain_community.llms import HuggingFacePipeline
+        from .hf_t5_pipeline import get_t5_pipeline
     except ImportError:
         raise ImportError(
             "Install: pip install langchain-community transformers torch"
         )
 
-    pipe = pipeline(
-        "text2text-generation",
-        model=model_id,
+    device_map = "auto" if _has_cuda() else None
+    pipe = get_t5_pipeline(
+        model_id=model_id,
         max_new_tokens=max_new_tokens,
-        model_kwargs={"device_map": "auto"} if _has_cuda() else {},
+        device_map=device_map,
     )
     return HuggingFacePipeline(pipeline=pipe)
 
