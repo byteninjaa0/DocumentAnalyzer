@@ -1,0 +1,11 @@
+[server]
+# Streamlit Cloud sets PORT; this keeps local/dev simple too.
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"

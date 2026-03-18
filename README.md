@@ -20,9 +20,17 @@ All processing runs **locally** (CPU or GPU). No data is sent to external APIs.
 
 ## System Architecture
 
-### LangGraph (recommended: `main.py`)
+### Web UI (Streamlit)
 
-The application is refactored to a **stateful LangGraph** workflow:
+**`app.py`** is a **Streamlit** web app: upload documents (PDF/text), choose an action (ask, summarize, sentiment, history), and get responses. Session-based chat history is kept in Streamlit session state and synced with LangGraph. Run with:
+
+```bash
+streamlit run app.py
+```
+
+### LangGraph backend (`main.py` CLI or via app.py)
+
+The application uses a **stateful LangGraph** workflow:
 
 ```
 START → router_node → [qa_node | summarize_node | sentiment_node | history_node] → memory_node → END
@@ -52,6 +60,8 @@ User → Prompt → LangChain Chain → LLM (HuggingFace) → Output
 |------|------------|
 | Language | Python |
 | Orchestration | LangGraph (state graph, nodes, conditional edges) + LangChain (chains inside nodes) |
+| Web UI | Streamlit |
+| File handling | pypdf (PDF), text/md/csv |
 | LLM | HuggingFace Transformers (T5-small, local) |
 | ML / NLP | scikit-learn (TF-IDF, Logistic Regression, GridSearchCV) |
 | Data | NumPy, Pandas |
@@ -85,8 +95,12 @@ genai-document-assistant/
 │   ├── prompts.py           # Prompt templates
 │   └── chatbot_memory.py    # (Legacy) conversation buffer; memory now in GraphState
 │
+├── utils/
+│   ├── __init__.py
+│   └── file_utils.py     # PDF/text extraction for uploads
 ├── main.py               # CLI entry point (LangGraph)
-├── app.py                # Legacy CLI (direct chains + ConversationBufferMemory)
+├── app.py                # Streamlit web UI (LangGraph)
+├── cli_legacy.py         # Legacy CLI (chains only)
 ├── requirements.txt
 └── README.md
 ```
@@ -112,16 +126,22 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Start the CLI chatbot
+### 3. Run the assistant
 
-**LangGraph (recommended):**
+**Web UI (recommended):**
+```bash
+streamlit run app.py
+```
+Then open the URL shown (e.g. http://localhost:8501). Upload a document in the sidebar, choose an action (ask question, summarize, sentiment, history), and submit.
+
+**CLI (LangGraph):**
 ```bash
 python main.py
 ```
 
-**Legacy (chains only):**
+**Legacy CLI (chains only):**
 ```bash
-python app.py
+python cli_legacy.py
 ```
 
 ### 4. Use the assistant
@@ -143,6 +163,29 @@ python app.py
 5. Type `history` to see the conversation so far.
 
 ---
+
+## Deploy to Streamlit Cloud
+
+This repo is Streamlit-Cloud friendly out of the box:
+
+- **Entry point**: `app.py`
+- **Dependencies**: `requirements.txt`
+- **Python version**: `runtime.txt`
+- **Streamlit config**: `.streamlit/config.toml`
+
+### Steps
+
+1. Push this repository to GitHub.
+2. In Streamlit Cloud, click **Create app** → select your repo/branch.
+3. Set:
+   - **Main file path**: `app.py`
+   - **Python**: automatically read from `runtime.txt` (or select 3.11)
+4. Deploy.
+
+### Notes
+
+- **Cold start**: The first run may be slower while models download and the sentiment model trains (first run only).
+- **Resources**: T5-small is CPU-friendly but still non-trivial; for best UX, keep uploads reasonably sized.
 
 ## Sentiment model (optional custom data)
 
